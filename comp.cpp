@@ -31,3 +31,31 @@ bool BigInt::operator== (const BigInt &other) const{
     }
     return true;
 }
+
+bool BigInt::operator!= (const BigInt &other) const{
+    return !((*this) == other );
+}
+
+bool BigInt::operator< (const BASE &other) const {
+    return this->length() == 0 || (this->length() == 1 && (*this)[0] < other);
+}
+
+bool BigInt::operator> (const BASE &other) const {
+    return !((*this) <= other);
+}
+
+bool BigInt::operator>= (const BASE &other) const {
+    return (*this) > other || (*this) == other;
+}
+
+bool BigInt::operator<= (const BASE &other) const {
+    return (*this) < other || (*this) == other;
+}
+
+bool BigInt::operator== (const BASE &other) const {
+    return this->length() == 1 && (*this)[0] == other;
+}
+
+bool BigInt::operator!= (const BASE &other) const{
+    return !((*this) == other );
+}

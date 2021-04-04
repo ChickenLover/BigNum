@@ -4,13 +4,13 @@
 BigInt BigInt::operator+ (const BigInt &other) const{
     const BigInt bigger = other.length() > this->length() ? other : *this;
     const BigInt smaller = other.length() <= this->length() ? other : *this;
-    BigInt new_big_int(bigger.length() + 1);
+    BigInt new_big_int = BigInt::with_cap(bigger.length() + 1);
     DOUBLE_BASE carry = 0;
     for(int i=0; i<bigger.length() + 1; i++){
         DOUBLE_BASE result = (DOUBLE_BASE)(i < smaller.length() ? smaller[i] : 0)\
                              + (DOUBLE_BASE)(i < bigger.length() ? bigger[i] : 0)\
                              + carry;
-        if(result or i < bigger.length() + 1)
+        if(result || i < bigger.length())
             new_big_int.push((BASE)result);
         carry = result >> (sizeof(BASE) * 8);
     }
@@ -18,7 +18,7 @@ BigInt BigInt::operator+ (const BigInt &other) const{
 }
 
 BigInt BigInt::operator- (const BigInt &other) const{
-    BigInt new_big_int(this->length());
+    BigInt new_big_int = BigInt::with_cap(this->length());
     bool carry = 0;
     for(int i=0; i<this->length(); i++){
         DOUBLE_BASE result = ((DOUBLE_BASE)1 << (sizeof(BASE) * 8)) + (*this)[i]
@@ -32,7 +32,7 @@ BigInt BigInt::operator- (const BigInt &other) const{
 }
 
 BigInt BigInt::operator* (const BASE &other) const{
-    BigInt new_big_int(this->length() + 1);
+    BigInt new_big_int = BigInt::with_cap(this->length() + 1);
     DOUBLE_BASE carry = 0;
     for(int i=0; i<this->length(); i++){
         DOUBLE_BASE result = (DOUBLE_BASE)(*this)[i] * other + carry;
@@ -51,7 +51,7 @@ BigInt operator* (const BASE left, const BigInt &right){
 BigInt BigInt::operator* (const BigInt &other) const{
     const BigInt bigger = other.length() > this->length() ? other : *this;
     const BigInt smaller = other.length() <= this->length() ? other : *this;
-    BigInt new_big_int(bigger.length() + smaller.length());
+    BigInt new_big_int = BigInt::with_cap(bigger.length() + smaller.length());
     for(int i=0; i<new_big_int.capacity(); i++){
         new_big_int.push(0);
     }
@@ -80,7 +80,7 @@ BigInt BigInt::division(const BASE &other, BASE* reminder_ptr) const{
             *reminder_ptr = 0;
         return BigInt();
     }
-    BigInt result_int(this->length());
+    BigInt result_int = BigInt::with_cap(this->length());
     for(int j=0; j<result_int.capacity(); j++){
         result_int.push(0);
     }
@@ -126,7 +126,7 @@ BigInt BigInt::long_division(const BigInt &other, BigInt *reminder_ptr) const{
     }
     BASE b = (BASE)(-1);
     int m = this->length() - n;
-    BigInt result(m + 1);
+    BigInt result = BigInt::with_cap(m + 1);
     for(int i=0; i<m+1; i++)
         result.push(0);
 
@@ -159,10 +159,10 @@ BigInt BigInt::long_division(const BigInt &other, BigInt *reminder_ptr) const{
 
         // Mul and sub ==========================================================================
         bool bad_result = false;
-        BigInt upper_part(n + 2);
+        BigInt upper_part = BigInt::with_cap(n + 2);
         for(int i=0; i<=n; i++)
             upper_part.push(u[j + i]);
-        BigInt smaller = (BASE)q * v;
+        BigInt smaller((BASE)q * v);
         if(smaller > upper_part){
             upper_part.push(1);
             bad_result = true;
@@ -179,7 +179,7 @@ BigInt BigInt::long_division(const BigInt &other, BigInt *reminder_ptr) const{
         if(bad_result){
             //std::cout << "COMPENSATED" << std::endl;
             result[j]--;
-            BigInt slice(n + 1);
+            BigInt slice;
             for(int i=0; i<=n; i++){
                 slice.push(u[i + j]);
             }
@@ -204,4 +204,49 @@ BigInt BigInt::operator% (const BigInt &other) const{
     BigInt reminder;
     this->long_division(other, &reminder);
     return reminder;
+}
+
+BigInt BigInt::operator>> (unsigned int shift) const {
+    auto words_to_del = shift / (sizeof(BASE) * 8);
+    if (!this->length() || words_to_del >= this->length()) {
+        return BigInt((BASE)0);
+    }
+    int part_shift = shift % (sizeof(BASE) * 8);
+    int hight_part_shift = (sizeof(BASE) * 8 - part_shift);
+    BigInt result = BigInt::with_cap(this->length() - words_to_del);
+	if (!part_shift) return result;
+
+    int i, j;
+    for (i = words_to_del, j = 0; i < result.length() - 1; i++, j++) {
+        result.al[j] = (this->al[i] >> part_shift) | (this->al[i + 1] << hight_part_shift);
+    }
+
+    result.al[j++] = this->al[i] >> part_shift;
+
+    result.ar = result.al + this->length() - words_to_del;
+    return result;
+}
+
+BigInt BigInt::operator<< (unsigned int shift) const {
+    auto add_words_num = shift / (sizeof(BASE) * 8);
+	auto shift_num = shift % (sizeof(BASE) * 8);
+	BigInt result(*this);
+	if (!result.length()) return result;  // don't shift zero
+	if (!shift_num) return result;
+    BASE *new_words = new BASE[result.length() + add_words_num];
+	memset(new_words, add_words_num, 0);
+    memcpy(new_words + add_words_num, result.al, result.length());
+    result.ar = new_words + result.length() + add_words_num;
+    free(result.al);
+    result.al = new_words;
+	BASE current_head = 0, next_head = 0;
+	for (size_t i = add_words_num; i < result.length(); i++) {
+		current_head = next_head;
+		next_head = result[i] >> ((sizeof(BASE) * 8) - shift_num);
+		result[i] = (result[i] << shift_num) | current_head;
+	}
+	if (next_head) {
+		result.push(next_head);
+	}
+	return result;
 }

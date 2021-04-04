@@ -1,8 +1,5 @@
-#include "big.h"
-
-BigInt::BigInt(){
-
-}
+#include "big.h" 
+BigInt::BigInt(){}
 
 BigInt::BigInt(const char *chars){
     this->from_hex(chars);
@@ -17,72 +14,16 @@ BigInt::BigInt(const BigInt &other){
     this->ah = this->al + other.capacity();
 }
 
-BigInt::BigInt(const size_t capacity){
-    this->al = new BASE[capacity];
-    this->ar = this->al;
-    this->ah = this->al + capacity;
+BigInt::BigInt(const BASE val) : BigInt() {
+    this->al = new BASE[1];
+    this->ar = this->al + 1;
+    this->ah = this->al + 1;
+    this->al[0] = val;
 }
 
 BigInt::~BigInt(){
     delete [] al;
 }
-
-unsigned char hex_to_num(const unsigned char hex){
-    int diff;
-    if(hex > 47 && hex < 58)
-        diff = 48;
-    else if(hex > 64 && hex < 71)
-        diff = 55;
-    else if(hex > 96 && hex < 103)
-        diff = 87;
-    else
-        throw std::invalid_argument("Incorrect hex!");
-    return hex - diff;
-}
-
-char num_to_hex(const unsigned char num){
-    if(num > 15)
-        throw std::invalid_argument("Incorrect num!");
-    if(num < 10)
-        return num + 48;
-    return num + 87;
-}
-
-BASE hex_to_base(const char *hex){
-    BASE value = 0;
-    int hex_len = strlen(hex);
-    char hex_per_base = sizeof(BASE) * 2;
-    int hex_multiplier = 1; // 8 * 10^0, 8 * 10^1 ... 8 * 10^n = hex_multiplier
-    for(int i=hex_len; i>0; i--){
-        int invert_index = hex_len - i;
-        int base_index = invert_index / hex_per_base;
-        value += hex_to_num(hex[i - 1]) * hex_multiplier;
-        hex_multiplier = hex_multiplier * 16;
-    }
-    return value;
-}
-
-
-void base_hex(std::ostream &os, BASE number){
-    if(!number){
-        std::cout << "0";
-    }
-    int hex_per_base = sizeof(BASE) * 2;
-    bool zeroes_stripped = false;
-    int hex_multiplier = pow(16, hex_per_base - 1);
-    for(int j=0; j<hex_per_base; j++){
-        char symbol = num_to_hex(number / hex_multiplier);
-        number %= hex_multiplier;
-        hex_multiplier /= 16;
-        if(!zeroes_stripped && symbol != '0'){
-            zeroes_stripped = true;
-        }
-        if(!zeroes_stripped)
-            continue;
-        os << symbol;
-    }
-}
-
 
 void BigInt::from_hex(const char *hex){
     int hex_len = strlen(hex);
@@ -103,6 +44,46 @@ void BigInt::from_hex(const char *hex){
         this->al[base_index] += hex_to_num(hex[i - 1]) * hex_multiplier;
         hex_multiplier = hex_multiplier * 16;
     }
+}
+
+BigInt BigInt::with_cap(size_t capacity) {
+    BigInt ret;
+    ret.al = new BASE[capacity];
+    ret.ar = ret.al;
+    ret.ah = ret.al + capacity;
+    return ret;
+}
+
+BigInt BigInt::random(BASE chunks) {
+    BigInt from = BigInt::with_cap(chunks);
+    BigInt to;
+	for (size_t i = 0; i < chunks - 1; i++) {
+		to.push(-1);
+	}
+    return BigInt::random(from, to);
+}
+
+BigInt BigInt::random(BigInt from, BigInt to) {
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<BASE> distr;
+	BigInt bound = to - from;
+	BigInt max, unbound;
+	for (size_t i = 0; i < bound.length(); i++) {
+		max.push(-1);
+		unbound.push(distr(gen));
+	}
+    BigInt divider = max / (bound + 1) + 1;
+	return from + unbound / divider;
+}
+
+BigInt BigInt::random_prime(BigInt from, BigInt to) {
+    BigInt result = (BASE)0;
+    while (!result.is_prime()) {
+        std::cout << result << std::endl;
+        result = BigInt::random(from, to);
+    }
+    return result;
 }
 
 void BigInt::extend_alloc(){
@@ -146,6 +127,15 @@ BigInt &BigInt::operator= (const BigInt &other){
     this->ar = this->al + other.length();
     this->ah = this->al + other.capacity();
     return *this;
+}
+
+BigInt &BigInt::operator= (BASE other) {
+    if (this->capacity())
+        delete [] this->al;
+    this->al = new BASE[1];
+    this->al[0] = other;
+    this->ar = this->al + 1;
+    this->ah = this->ar;
 }
 
 std::ostream &operator<< (std::ostream &os, const BigInt &number){
@@ -221,21 +211,35 @@ void BigInt::lstrip(){
 }
 
 int main(int argc, char** argv){
+    srand(time(NULL));
     /*BigInt a;
     std::cin >> a;
     a.print_decimal();*/
 
-    // RECOMBINITION TESTS
-    BigInt a = argv[1];
-    BigInt b = argv[2];
-    BigInt div = a / b;
-    std::cout << div << std::endl;
+    
+    BigInt rnd = BigInt::random_prime(BigInt((BASE)0), BigInt(100));
+    std::cout << rnd << std::endl;
+    
+
+    //POWER TESTS
+    //BigInt a = argv[1];
+    //BASE n = atoi(argv[2]);
+    //BigInt modulus = argv[3];
+    //std::cout << a.pow(n, modulus) << std::endl;
+
+
+    //RECOMBINITION TESTS
+    //BigInt a = argv[1];
+    //BigInt b = argv[2];
+    //BigInt div = a / b;
+    //std::cout << div << std::endl;
     //BigInt div = a / b;
     //BigInt reminder = a % b;
     //BigInt recombined = b * div + reminder;
     //std::cout << recombined << std::endl;
 
-    /*//GRIBANOV DIVISION TESTS
+    /*
+    //GRIBANOV DIVISION TESTS
     BigInt a;
     BigInt b;
     std::cin >> a;
@@ -243,7 +247,12 @@ int main(int argc, char** argv){
     std::cout << a / b << std::endl << a % b;
     */
 
-    /*// ADDING TESTS
+
+    /*
+    // ADDING TESTS
+    BigInt a, b;
+    std::cin >> a;
+    std::cin >> b;
     BigInt sum = a + b;
     std::cout << sum;
     */
@@ -258,7 +267,10 @@ int main(int argc, char** argv){
     std::cout << mul;
     */
 
-    /*// DIVISION TESTS
+    /*
+    // DIVISION TESTS
+    BigInt a;
+    std::cin >> a;
     std::string hex_val;
     std::cin >> hex_val;
     BASE c = hex_to_base(hex_val.c_str());

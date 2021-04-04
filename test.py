@@ -14,6 +14,7 @@ def gen_hex(chunks_from, chunks_to):
 
 start_time = time.perf_counter()
 for i in range(1, TESTS + 1):
+    print(i)
     if not i % 100: print(f'{i} tests passed!')
     rand_n = random.randint(500, 501)
     b = gen_hex(rand_n, rand_n + 1)
