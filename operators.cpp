@@ -213,38 +213,33 @@ BigInt BigInt::operator>> (unsigned int shift) const {
     }
     int part_shift = shift % (sizeof(BASE) * 8);
     int hight_part_shift = (sizeof(BASE) * 8 - part_shift);
-    BigInt result = BigInt::with_cap(this->length() - words_to_del);
-	if (!part_shift) return result;
+    auto new_length = this->length() - words_to_del;
+    BigInt result = BigInt::with_cap(new_length);
 
     int i, j;
-    for (i = words_to_del, j = 0; i < result.length() - 1; i++, j++) {
+    for (i = words_to_del, j = 0; i < this->length(); i++, j++) {
         result.al[j] = (this->al[i] >> part_shift) | (this->al[i + 1] << hight_part_shift);
     }
 
-    result.al[j++] = this->al[i] >> part_shift;
-
-    result.ar = result.al + this->length() - words_to_del;
+    result.al[new_length - 1] = this->al[this->length() - 1] >> part_shift;
+    result.ar = result.al + new_length;
     return result;
 }
 
 BigInt BigInt::operator<< (unsigned int shift) const {
     auto add_words_num = shift / (sizeof(BASE) * 8);
 	auto shift_num = shift % (sizeof(BASE) * 8);
-	BigInt result(*this);
-	if (!result.length()) return result;  // don't shift zero
-	if (!shift_num) return result;
-    BASE *new_words = new BASE[result.length() + add_words_num];
-	memset(new_words, add_words_num, 0);
-    memcpy(new_words + add_words_num, result.al, result.length());
-    result.ar = new_words + result.length() + add_words_num;
-    free(result.al);
-    result.al = new_words;
+    auto new_length = this->length() + add_words_num;
+	BigInt result = BigInt::with_cap(new_length);
+    if (!this->length()) return result;
 	BASE current_head = 0, next_head = 0;
-	for (size_t i = add_words_num; i < result.length(); i++) {
+    memset(result.al, add_words_num, 0);
+	for (size_t i = add_words_num; i < new_length; i++) {
 		current_head = next_head;
-		next_head = result[i] >> ((sizeof(BASE) * 8) - shift_num);
-		result[i] = (result[i] << shift_num) | current_head;
+		next_head = this->al[i - add_words_num] >> ((sizeof(BASE) * 8) - shift_num);
+		result[i] = (this->al[i - add_words_num] << shift_num) | current_head;
 	}
+    result.ar = result.al + new_length;
 	if (next_head) {
 		result.push(next_head);
 	}

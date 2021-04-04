@@ -80,7 +80,6 @@ BigInt BigInt::random(BigInt from, BigInt to) {
 BigInt BigInt::random_prime(BigInt from, BigInt to) {
     BigInt result = (BASE)0;
     while (!result.is_prime()) {
-        std::cout << result << std::endl;
         result = BigInt::random(from, to);
     }
     return result;
@@ -216,8 +215,8 @@ int main(int argc, char** argv){
     std::cin >> a;
     a.print_decimal();*/
 
-    
-    BigInt rnd = BigInt::random_prime(BigInt((BASE)0), BigInt(100));
+   
+    BigInt rnd = BigInt::random_prime(BigInt((BASE)0), BigInt(1) << 1024);
     std::cout << rnd << std::endl;
     
 

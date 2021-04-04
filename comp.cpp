@@ -25,7 +25,7 @@ bool BigInt::operator>= (const BigInt &other) const{
 bool BigInt::operator== (const BigInt &other) const{
     if(this->length() != other.length())
         return false;
-    for(int i=this->length()-1; i>0; i--){
+    for(int i=0; i<this->length(); i++){
         if((*this)[i] != other[i])
             return false;
     }
