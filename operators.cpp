@@ -222,7 +222,7 @@ BigInt BigInt::operator>> (unsigned int shift) const {
     }
 
     result.al[new_length - 1] = this->al[this->length() - 1] >> part_shift;
-    result.ar = result.al + new_length;
+    result.ar = result.al + new_length - (result.al[new_length - 1] == 0);
     return result;
 }
 
@@ -230,13 +230,13 @@ BigInt BigInt::operator<< (unsigned int shift) const {
     auto add_words_num = shift / (sizeof(BASE) * 8);
 	auto shift_num = shift % (sizeof(BASE) * 8);
     auto new_length = this->length() + add_words_num;
-	BigInt result = BigInt::with_cap(new_length);
+	BigInt result = BigInt::with_cap(new_length + 1);
     if (!this->length()) return result;
 	BASE current_head = 0, next_head = 0;
     memset(result.al, add_words_num, 0);
 	for (size_t i = add_words_num; i < new_length; i++) {
 		current_head = next_head;
-		next_head = this->al[i - add_words_num] >> ((sizeof(BASE) * 8) - shift_num);
+		next_head = (DOUBLE_BASE)this->al[i - add_words_num] >> ((sizeof(BASE) * 8) - shift_num);
 		result[i] = (this->al[i - add_words_num] << shift_num) | current_head;
 	}
     result.ar = result.al + new_length;

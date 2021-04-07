@@ -1,4 +1,5 @@
 #include "big.h" 
+
 BigInt::BigInt(){}
 
 BigInt::BigInt(const char *chars){
@@ -22,7 +23,8 @@ BigInt::BigInt(const BASE val) : BigInt() {
 }
 
 BigInt::~BigInt(){
-    delete [] al;
+    if (al)
+        delete [] al;
 }
 
 void BigInt::from_hex(const char *hex){
@@ -79,7 +81,11 @@ BigInt BigInt::random(BigInt from, BigInt to) {
 
 BigInt BigInt::random_prime(BigInt from, BigInt to) {
     BigInt result = (BASE)0;
+    int i = 0;
     while (!result.is_prime()) {
+        i++;
+        if (!(i % 100))
+            std::cout << i << std::endl;
         result = BigInt::random(from, to);
     }
     return result;
@@ -207,86 +213,4 @@ void BigInt::lstrip(){
     for(int i=this->length()-1; i>=0 && !(*this)[i]; i--){
         this->pop();
     }
-}
-
-int main(int argc, char** argv){
-    srand(time(NULL));
-    /*BigInt a;
-    std::cin >> a;
-    a.print_decimal();*/
-
-   
-    BigInt rnd = BigInt::random_prime(BigInt((BASE)0), BigInt(1) << 1024);
-    std::cout << rnd << std::endl;
-    
-
-    //POWER TESTS
-    //BigInt a = argv[1];
-    //BASE n = atoi(argv[2]);
-    //BigInt modulus = argv[3];
-    //std::cout << a.pow(n, modulus) << std::endl;
-
-
-    //RECOMBINITION TESTS
-    //BigInt a = argv[1];
-    //BigInt b = argv[2];
-    //BigInt div = a / b;
-    //std::cout << div << std::endl;
-    //BigInt div = a / b;
-    //BigInt reminder = a % b;
-    //BigInt recombined = b * div + reminder;
-    //std::cout << recombined << std::endl;
-
-    /*
-    //GRIBANOV DIVISION TESTS
-    BigInt a;
-    BigInt b;
-    std::cin >> a;
-    std::cin >> b;
-    std::cout << a / b << std::endl << a % b;
-    */
-
-
-    /*
-    // ADDING TESTS
-    BigInt a, b;
-    std::cin >> a;
-    std::cin >> b;
-    BigInt sum = a + b;
-    std::cout << sum;
-    */
-
-    /* // SUBSTRUCTION TESTS
-    BigInt sub = a - b;
-    std::cout << sub;
-    */
-
-    /* // MULTIPLICATION TESTS
-    BigInt mul = a * b;
-    std::cout << mul;
-    */
-
-    /*
-    // DIVISION TESTS
-    BigInt a;
-    std::cin >> a;
-    std::string hex_val;
-    std::cin >> hex_val;
-    BASE c = hex_to_base(hex_val.c_str());
-    BigInt div = a / c;
-    BASE reminder = a % c;
-    std::cout << div << std::endl;
-    base_hex(std::cout, reminder);
-    */
-
-    /*
-    //SUPER DIVISION TESTS
-    BigInt a = argv[1];
-    BigInt b = argv[2];
-    BigInt div = a / b;
-    std::cout << div << std::endl;
-    BigInt reminder = a % b;
-    std::cout << reminder << std::endl;
-    */
-    return 0;
 }
