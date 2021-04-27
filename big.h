@@ -25,7 +25,7 @@ class BigInt {
         BigInt(const BASE val);
         ~BigInt();
 
-        BigInt &operator= (BASE other);
+        void operator= (BASE other);
         BigInt &operator= (const BigInt &other);
         BASE &operator[] (const size_t index);
         BASE operator[] (const size_t index) const;

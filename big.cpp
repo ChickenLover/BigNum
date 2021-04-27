@@ -134,7 +134,7 @@ BigInt &BigInt::operator= (const BigInt &other){
     return *this;
 }
 
-BigInt &BigInt::operator= (BASE other) {
+void BigInt::operator= (BASE other) {
     if (this->capacity())
         delete [] this->al;
     this->al = new BASE[1];
