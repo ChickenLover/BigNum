@@ -1,15 +1,16 @@
 #pragma once
 #include <time.h>
+#include <math.h>
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <cstring>
-#include <math.h>
 #include <random>
 
 #define EXTENSION_MUL 2
 
-typedef unsigned int BASE;
-typedef unsigned long long DOUBLE_BASE;
+typedef uint32_t BASE;
+typedef uint64_t DOUBLE_BASE;
 
 
 class BigInt {
@@ -67,12 +68,15 @@ class BigInt {
         static BigInt random(BigInt from, BigInt to);
         static BigInt random_prime(BigInt from, BigInt to);
         static BigInt pow(BigInt a, BigInt power, BigInt modulus);
+        static BigInt pow(BigInt a, uint32_t power);
+        BigInt floor_root(uint32_t power) const;
         BigInt long_division(const BigInt &other, BigInt *reminder=NULL) const;
         BigInt division(const BASE &other, BASE *reminder_ptr=NULL) const;
         BigInt next_prime() const;
         bool is_prime() const;
         bool is_even() const;
         bool is_odd() const;
+        bool is_zero() const;
         void print_decimal();
         void zero();
         void push(const BASE new_el);

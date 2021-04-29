@@ -1,12 +1,48 @@
 #include "big.h"
 
 
+BigInt BigInt::pow(BigInt a, uint32_t power) {
+    BigInt q(a);
+    BigInt result = power & 1 ? a : 1;
+    for(power = power >> 1; power > 0; power = power >> 1) {
+        q = q * q;
+        result = power & 1 ? result * q : result;
+    }
+    return result;
+}
+
 BigInt BigInt::pow(BigInt a, BigInt power, BigInt modulus) {
     BigInt q(a);
     BigInt result = power.is_odd() ? a % modulus : 1;
     for(power = power >> 1; power > 0; power = power >> 1) {
         q = (q * q) % modulus;
         result = power.is_odd() ? (result * q) % modulus : result;
+    }
+    return result;
+}
+
+BigInt BigInt::floor_root(uint32_t power) const {
+    BigInt n = *this;
+    if (power == 0)
+        return 1;
+    if (power == 1)
+        return n;
+    BigInt left = 1;
+    BigInt right = n >> 1;
+    BigInt result;
+    while (left <= right) {
+        BigInt m = (left + right) >> 1;
+        BigInt tmp = pow(m, power);
+		if (tmp == n)
+			return m;
+		if (tmp < n)
+		{
+			left = m + 1;
+			result = m;
+		}
+		else {
+			right = m - 1;
+		}
     }
     return result;
 }

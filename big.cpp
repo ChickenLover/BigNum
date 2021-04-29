@@ -214,3 +214,7 @@ void BigInt::lstrip(){
         this->pop();
     }
 }
+
+bool BigInt::is_zero() const {
+    return !length() || (length() == 1 && !(*this)[0]);
+}
