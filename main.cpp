@@ -17,16 +17,16 @@ int main(int argc, char** argv){
 
     BigInt to = BigInt(1) << 128;
     BigInt rnd = BigInt::random(BigInt((BASE)0), to);
-    std::cout << "Факторизуем ";
+    std::cout << "Factoring... ";
     rnd.print_decimal();
     std::cout << std::endl;
     std::vector<BigInt> primes;
     BigInt reminder = naive_division(rnd, BigInt(1) << 16, primes);
     if (reminder != 1)
-        std::cout << "Факторизация неполная... Остаток: ";
+        std::cout << "Factorization incomplete! Reminder: ";
         reminder.print_decimal();
         std::cout << std::endl;
-    std::cout << "Простые делители: ";
+    std::cout << "Primes: ";
     for (auto prime : primes) {
         prime.print_decimal();
         std::cout << ", ";

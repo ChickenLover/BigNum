@@ -9,7 +9,7 @@
 #define EXTENSION_MUL 2
 
 typedef unsigned int BASE;
-typedef unsigned long DOUBLE_BASE;
+typedef unsigned long long DOUBLE_BASE;
 
 
 class BigInt {
