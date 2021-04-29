@@ -1,6 +1,27 @@
 #include "big.h"
 
 
+std::pair<BigInt, BigInt> fermat(BigInt n) {
+    while (n.is_even()) {
+        n = n >> 1;
+    }
+	BigInt x = n.floor_root(2);
+	if (x * x == n) {
+		return std::make_pair(x, x);
+	}
+	BigInt max = (n + 9) / (BASE)6;
+    BigInt z = (x + 1) * (x + 1) - n;
+	while ((x = x + 1) <= max) {
+		BigInt y = z.floor_root(2);
+		if (y * y == z) {
+			return std::make_pair(x + y, x - y);
+		}
+        z = z + ((x + 1) * 2) - 1;
+	}
+	return std::make_pair(0, 0);
+}
+
+
 BigInt naive_division(BigInt n, BigInt b, std::vector<BigInt> &primes) {
     BigInt n_copy(n), r, q, k = 2, zero = BigInt((BASE)0);
     while (n_copy != 1) {

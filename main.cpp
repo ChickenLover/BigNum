@@ -2,37 +2,38 @@
 #include "algos.h"
 
 
+void fermat_test() {
+    BigInt to = BigInt(1) << 16;
+    BigInt rnd = BigInt::random(BigInt((BASE)0), to);
+    std::cout << "Factoring with Fermat... ";
+    rnd.print_decimal();
+    std::cout << std::endl;
+    std::pair<BigInt, BigInt> dividers = fermat(rnd);
+    if (dividers.first.is_zero()) {
+        std::cout << "N is a prime" << std::endl;
+    } else {
+        std::cout << "Found dividers: ";
+        dividers.first.print_decimal();
+        std::cout << ", ";
+        dividers.second.print_decimal();
+        std::cout << std::endl;
+    }
+}
+
+
 void olvey_test() {
     BigInt to = BigInt(1) << 32;
     BigInt rnd = BigInt::random(BigInt((BASE)0), to);
     std::cout << "Factoring with Olvey... ";
     rnd.print_decimal();
     std::cout << std::endl;
-    BigInt prime_divider;
-    do {
-        prime_divider = olvey(rnd);
-        if (!prime_divider.is_zero()) {
-            BigInt rem, tmp;
-            while(rem.is_zero()) {
-                tmp = rnd.long_division(prime_divider, &rem);
-                if (rem.is_zero()) {
-                    rnd = tmp;
-                    std::cout << "Found divider: ";
-                    prime_divider.print_decimal();
-                    std::cout << std::endl;
-                }
-            }
-        }
-    } while (!prime_divider.is_zero() && !rnd.is_prime());
-    if (rnd != 1 && rnd.is_prime()) {
-        std::cout << "Found prime divider: ";
-        rnd.print_decimal();
+    BigInt prime_divider = olvey(rnd);
+    if (!prime_divider.is_zero()) {
+        std::cout << "Found divider: ";
+        prime_divider.print_decimal();
         std::cout << std::endl << "Olvey factorization completed" << std::endl;
     } else {
-        std::cout << "Olvey factorization completed. Reminder: ";
-        rnd.print_decimal();
-        std::cout << std::endl;
-
+        std::cout << "Olvey factorization didn't find any dividers in range" << std::endl;
     }
 }
 
@@ -60,8 +61,9 @@ void naive_test() {
 
 int main(int argc, char** argv){
     srand(time(NULL));
-    naive_test();
-    // olvey_test();
+    // naive_test();
+    olvey_test();
+    fermat_test();
 
     /*BigInt a;
     std::cin >> a;
