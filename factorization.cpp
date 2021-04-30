@@ -1,5 +1,27 @@
 #include "big.h"
 
+
+std::pair<BigInt, BigInt> fermat(BigInt n) {
+    while (n.is_even()) {
+        n = n >> 1;
+    }
+	BigInt x = n.floor_root(2);
+	if (x * x == n) {
+		return std::make_pair(x, x);
+	}
+	BigInt max = (n + 9) / (BASE)6;
+    BigInt z = (x + 1) * (x + 1) - n;
+	while ((x = x + 1) <= max) {
+		BigInt y = z.floor_root(2);
+		if (y * y == z) {
+			return std::make_pair(x + y, x - y);
+		}
+        z = z + ((x + 1) * 2) - 1;
+	}
+	return std::make_pair(0, 0);
+}
+
+
 BigInt naive_division(BigInt n, BigInt b, std::vector<BigInt> &primes) {
     BigInt n_copy(n), r, q, k = 2, zero = BigInt((BASE)0);
     while (n_copy != 1) {
@@ -21,4 +43,37 @@ BigInt naive_division(BigInt n, BigInt b, std::vector<BigInt> &primes) {
         }
     }
     return n_copy;
+}
+
+
+BigInt olvey(BigInt n) {
+    while (n.is_even()) {
+        n = n >> 1;
+    }
+	BigInt d = (n.floor_root(3) << 1) + 1; // d всегда положительное нечетное
+    BigInt r1, r2;
+    BigInt d1 = n.long_division(d, &r1);
+    BigInt d2 = n.long_division(d - 2, &r2);
+	BigInt q = (d2 - d1) * 4;
+    BigInt s = n.floor_root(2);
+	while ((d = d + 2) <= s) {
+		BigInt r = (r1 << 1) + q;
+		if (r2 >= r) {
+			r = r + d;
+			q = q + 4;
+		}
+		r = r - r2;
+		while (r >= d) {
+			r = r - d;
+			q = q - 4;
+		}
+		if (r.is_zero()) {
+			return d;
+		}
+		else {
+			r2 = r1;
+			r1 = r;
+		}
+	}
+	return BigInt((BASE)0);
 }

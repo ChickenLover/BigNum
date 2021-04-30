@@ -2,26 +2,50 @@
 #include "algos.h"
 
 
-int main(int argc, char** argv){
-    srand(time(NULL));
-    /*BigInt a;
-    std::cin >> a;
-    a.print_decimal();*/
- 
-    // BigInt to = (BigInt(1) << 128);
-    // BigInt rnd = BigInt::random_prime(BigInt((BASE)0), to);
-    // std::cout << rnd << std::endl;
-
-    // BigInt prime = "C7A942B524F86A9FAAB25CE1793B22C5D663C14F022CEB8B405F51C46E88861B";
-    // std::cout << prime.is_prime() << std::endl;
-
-    BigInt to = BigInt(1) << 128;
+void fermat_test() {
+    BigInt to = BigInt(1) << 16;
     BigInt rnd = BigInt::random(BigInt((BASE)0), to);
-    std::cout << "Factoring... ";
+    std::cout << "Factoring with Fermat... ";
+    rnd.print_decimal();
+    std::cout << std::endl;
+    std::pair<BigInt, BigInt> dividers = fermat(rnd);
+    if (dividers.first.is_zero()) {
+        std::cout << "N is a prime" << std::endl;
+    } else {
+        std::cout << "Found dividers: ";
+        dividers.first.print_decimal();
+        std::cout << ", ";
+        dividers.second.print_decimal();
+        std::cout << std::endl;
+    }
+}
+
+
+void olvey_test() {
+    BigInt to = BigInt(1) << 32;
+    BigInt rnd = BigInt::random(BigInt((BASE)0), to);
+    std::cout << "Factoring with Olvey... ";
+    rnd.print_decimal();
+    std::cout << std::endl;
+    BigInt prime_divider = olvey(rnd);
+    if (!prime_divider.is_zero()) {
+        std::cout << "Found divider: ";
+        prime_divider.print_decimal();
+        std::cout << std::endl << "Olvey factorization completed" << std::endl;
+    } else {
+        std::cout << "Olvey factorization didn't find any dividers in range" << std::endl;
+    }
+}
+
+
+void naive_test() {
+    BigInt to = BigInt(1) << 32;
+    BigInt rnd = BigInt::random(BigInt((BASE)0), to);
+    std::cout << "Factoring with naive division... ";
     rnd.print_decimal();
     std::cout << std::endl;
     std::vector<BigInt> primes;
-    BigInt reminder = naive_division(rnd, BigInt(1) << 16, primes);
+    BigInt reminder = naive_division(rnd, BigInt(1) << 24, primes);
     if (reminder != 1)
         std::cout << "Factorization incomplete! Reminder: ";
         reminder.print_decimal();
@@ -32,7 +56,25 @@ int main(int argc, char** argv){
         std::cout << ", ";
     }
     std::cout << std::endl;
+}
 
+
+int main(int argc, char** argv){
+    srand(time(NULL));
+    naive_test();
+    olvey_test();
+    fermat_test();
+
+    /*BigInt a;
+    std::cin >> a;
+    a.print_decimal();*/
+ 
+    // BigInt to = (BigInt(1) << 128);
+    // BigInt rnd = BigInt::random_prime(BigInt((BASE)0), to);
+    // std::cout << rnd << std::endl;
+
+    // BigInt prime = "C7A942B524F86A9FAAB25CE1793B22C5D663C14F022CEB8B405F51C46E88861B";
+    // std::cout << prime.is_prime() << std::endl;
 
     //POWER TESTS
     //BigInt a = argv[1];
