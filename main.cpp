@@ -61,7 +61,7 @@ void naive_test() {
 
 int main(int argc, char** argv){
     srand(time(NULL));
-    // naive_test();
+    naive_test();
     olvey_test();
     fermat_test();
 
