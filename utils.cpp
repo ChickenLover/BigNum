@@ -83,6 +83,13 @@ BigInt BigInt::floor_root(uint32_t power) const {
     return result;
 }
 
+BASE BigInt::floor_log(BigInt a, BigInt b) {
+    BASE result;
+	BigInt d = b;
+	for (result = 0; a > d; d = d * b, result++);
+	return result;
+}
+
 unsigned char hex_to_num(const unsigned char hex){
     int diff;
     if(hex > 47 && hex < 58)

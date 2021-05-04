@@ -72,6 +72,7 @@ class BigInt {
         static BigInt pow(BigInt a, BigInt power, BigInt modulus);
         static BigInt pow(BigInt a, uint32_t power);
         static BigInt gcd(BigInt a, BigInt b);
+        static BASE floor_log(BigInt a, BigInt b);
         BigInt floor_root(uint32_t power) const;
         BigInt long_division(const BigInt &other, BigInt *reminder=NULL) const;
         BigInt division(const BASE &other, BASE *reminder_ptr=NULL) const;

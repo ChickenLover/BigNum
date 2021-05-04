@@ -21,41 +21,44 @@ BigInt pollard(BigInt n) {
 	return d;
 }
 
-/*
-BN Pollard2_inner(BN n, BN b) {
-	auto a = BN::rand(2, n - 2);
-	auto d = BN::gcd(a, n);
+
+BigInt pollardP1_try(BigInt n, BigInt b) {
+	BigInt a = BigInt::random(2, n - 2);
+	BigInt d = BigInt::gcd(a, n);
 	if (d > 1) {
 		return d;
 	}
-	BN q_i = 2;
+
+    // q1, q2, q3 выбираем простыми
+	BigInt q_i = 2;
 	while (q_i <= b) {
-		auto e_i = BN::floorLog(n, q_i);
-		a = BN::pow(a, BN::pow(q_i, e_i, n), n);
-		if (a == BN(1)) {
-			return BN(0);
+		BASE e_i = BigInt::floor_log(n, q_i);
+		a = BigInt::pow(a, BigInt::pow(q_i, BigInt(e_i), n), n);
+		if (a == 1) {
+			return BigInt((BASE)0);
 		}
-		d = BN::gcd(a - 1, d);
+		d = BigInt::gcd(a - 1, d);
 		if (d > 1) {
 			return d;
 		}
-		q_i = q_i.nextPrime();
+		q_i = q_i.next_prime();
 	}
 	return 1;
 }
 
 
-BN Pollard2(BN n, BN b) {
-	assert(!n.isEven());
-	assert(!n.isPrime());
-	assert(b > 1);
-	BN result;
-	for (char i = 0; i < 100 && result == 0; i++) {
-		result = Pollard2_inner(n, b);
+BigInt pollardP1(BigInt n, BigInt b) {
+    while (n.is_even()) {
+        n = n >> 1;
+    }
+
+    // Пытаемся факторизовать 10 раз
+	BigInt result;
+	for (size_t i = 0; i < 100 && result.is_zero(); i++) {
+		result = pollardP1_try(n, b);
 	}
 	return result;
 }
-*/
 
 std::pair<BigInt, BigInt> fermat(BigInt n) {
     while (n.is_even()) {
