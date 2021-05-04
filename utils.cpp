@@ -21,6 +21,42 @@ BigInt BigInt::pow(BigInt a, BigInt power, BigInt modulus) {
     return result;
 }
 
+// https://en.wikipedia.org/wiki/Binary_GCD_algorithm#Iterative_version_in_Rust
+BigInt BigInt::gcd(BigInt a, BigInt b) {
+    if (a == 0)
+		return b;
+	if (b == 0)
+		return a;
+
+    // k - max power of 2
+	int k;
+	for (k = 0; ((a | b) & 1).is_zero(); ++k)
+	{
+		a = a >> 1;
+		b = b >> 1;
+	}
+
+    // Make a odd
+	while ((a & 1).is_zero())
+		a = a >> 1;
+
+	do
+	{
+        // Make b odd each iteration
+		while ((b & 1).is_zero())
+			b = b >> 1;
+
+		if (a > b)
+			std::swap(a, b);
+
+		b = (b - a);
+	} while (!b.is_zero());
+
+	/* restore common factors of 2 */
+	return a << k;
+}
+
+
 BigInt BigInt::floor_root(uint32_t power) const {
     BigInt n = *this;
     if (power == 0)
@@ -45,6 +81,13 @@ BigInt BigInt::floor_root(uint32_t power) const {
 		}
     }
     return result;
+}
+
+BASE BigInt::floor_log(BigInt a, BigInt b) {
+    BASE result;
+	BigInt d = b;
+	for (result = 0; a > d; d = d * b, result++);
+	return result;
 }
 
 unsigned char hex_to_num(const unsigned char hex){

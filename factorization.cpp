@@ -1,6 +1,65 @@
 #include "big.h"
 
 
+BigInt _f(BigInt x, BigInt n) {
+    return (x * x + 1) % n;
+}
+
+BigInt pollard(BigInt n) {
+    while (n.is_even()) {
+        n = n >> 1;
+    }
+	BigInt a = 2, b = 2;
+	BigInt d = 1;
+	while (d == 1) {
+		a = _f(a, n), b = _f(_f(b, n), n);
+		if (a == b) {
+			return BigInt((BASE)0);
+		}
+		d = BigInt::gcd(a > b ? a - b : b - a, n);
+	}
+	return d;
+}
+
+
+BigInt pollardP1_try(BigInt n, BigInt b) {
+	BigInt a = BigInt::random(2, n - 2);
+	BigInt d = BigInt::gcd(a, n);
+	if (d > 1) {
+		return d;
+	}
+
+    // q1, q2, q3 выбираем простыми
+	BigInt q_i = 2;
+	while (q_i <= b) {
+		BASE e_i = BigInt::floor_log(n, q_i);
+		a = BigInt::pow(a, BigInt::pow(q_i, BigInt(e_i), n), n);
+		if (a == 1) {
+			return BigInt((BASE)0);
+		}
+		d = BigInt::gcd(a - 1, d);
+		if (d > 1) {
+			return d;
+		}
+		q_i = q_i.next_prime();
+	}
+	return 1;
+}
+
+
+BigInt pollardP1(BigInt n, BigInt b) {
+    while (n.is_even()) {
+        n = n >> 1;
+    }
+
+    // Пытаемся факторизовать 10 раз
+	BigInt result;
+	for (size_t i = 0; i < 100 && result.is_zero(); i++) {
+		result = pollardP1_try(n, b);
+	}
+	return result;
+}
+
 std::pair<BigInt, BigInt> fermat(BigInt n) {
     while (n.is_even()) {
         n = n >> 1;
@@ -23,17 +82,17 @@ std::pair<BigInt, BigInt> fermat(BigInt n) {
 
 
 BigInt naive_division(BigInt n, BigInt b, std::vector<BigInt> &primes) {
-    BigInt n_copy(n), r, q, k = 2, zero = BigInt((BASE)0);
+    BigInt n_copy(n), r, q, d = 2;
     while (n_copy != 1) {
-        q = n_copy.long_division(k, &r);
-        if (r == zero) {
-            primes.push_back(k);
+        q = n_copy.long_division(d, &r);
+        if (r.is_zero()) {
+            primes.push_back(d);
             n_copy = q;
             continue;
         }
-        if (k < q) {
-            k = k.next_prime();
-            if (k > b) {
+        if (d < q) {
+            d = d.next_prime();
+            if (d > b) {
                 break;
             }
             continue;
