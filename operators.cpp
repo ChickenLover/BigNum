@@ -245,3 +245,25 @@ BigInt BigInt::operator<< (unsigned int shift) const {
 	}
 	return result;
 }
+
+
+BigInt BigInt::operator& (const BigInt &other) const {
+	BigInt min_number = (this->length() > other.length()) ? other : *this;
+	BigInt max_number = (this->length() > other.length()) ? *this : other;
+	BigInt result(min_number);
+	for (size_t i = 0; i < min_number.length(); i++) {
+		result[i] &= max_number[i];
+	}
+	result.lstrip();
+	return result;
+}
+
+BigInt BigInt::operator| (const BigInt &other) const {
+	BigInt min_number = (this->length() > other.length()) ? other : *this;
+	BigInt max_number = (this->length() > other.length()) ? *this : other;
+	BigInt result(max_number);
+	for (size_t i = 0; i < min_number.length(); i++) {
+		result[i] |= min_number[i];
+	}
+	return result;
+}

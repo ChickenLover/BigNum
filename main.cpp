@@ -2,6 +2,20 @@
 #include "algos.h"
 
 
+void pollard_test() {
+    BigInt to = BigInt(1) << 16;
+    BigInt rnd = BigInt::random(BigInt((BASE)0), to);
+    std::cout << "Factoring with Pollard... ";
+    rnd.print_decimal();
+    std::cout << std::endl;
+
+    BigInt result = pollard(rnd);
+    result.print_decimal();
+    std::cout << std::endl;
+
+}
+
+
 void fermat_test() {
     BigInt to = BigInt(1) << 16;
     BigInt rnd = BigInt::random(BigInt((BASE)0), to);
@@ -61,9 +75,10 @@ void naive_test() {
 
 int main(int argc, char** argv){
     srand(time(NULL));
-    naive_test();
-    olvey_test();
-    fermat_test();
+    // naive_test();
+    // olvey_test();
+    // fermat_test();
+    pollard_test();
 
     /*BigInt a;
     std::cin >> a;
